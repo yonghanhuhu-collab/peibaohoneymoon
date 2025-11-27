@@ -2,269 +2,632 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>南義蜜月之旅 🇮🇹</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>南義蜜月 🇮🇹</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            --primary: #6B4EFF; /* 影片中的紫色系 */
-            --bg: #F4F6F8;
-            --white: #FFFFFF;
-            --text: #333333;
-            --gray: #888888;
+            /* 莫蘭迪色系 (Morandi Colors) */
+            --primary: #7A9CA5;      /* 灰藍綠 (主色) */
+            --bg: #F4F6F4;           /* 極淺灰綠背景 */
+            --card: #FFFFFF;
+            --text: #465C63;         /* 深灰綠字體 */
+            --accent: #D4A5A5;       /* 莫蘭迪粉 (重點色) */
+            
+            /* 分類標籤顏色 */
+            --tag-spot: #8DA399;     /* 景點-綠 */
+            --tag-food: #D4A5A5;     /* 美食-粉 */
+            --tag-coffee: #C5B088;   /* 咖啡-棕 */
+            --tag-trans: #8FA4B5;    /* 交通-藍 */
         }
-        
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); padding-bottom: 80px; }
-        
-        /* 頂部導航 */
-        .header { background: var(--primary); color: var(--white); padding: 20px 20px 60px 20px; border-radius: 0 0 20px 20px; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 10px rgba(107, 78, 255, 0.3); }
-        .header h1 { margin: 0; font-size: 24px; font-weight: 700; }
-        .header p { margin: 5px 0 0; opacity: 0.9; font-size: 14px; }
 
-        /* 日期切換 Tab (像影片那樣) */
-        .date-tabs { display: flex; overflow-x: auto; padding: 0 15px; margin-top: -40px; gap: 10px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
-        .date-tabs::-webkit-scrollbar { display: none; }
-        .tab-btn { background: var(--white); border: none; padding: 10px 15px; border-radius: 12px; min-width: 70px; text-align: center; color: var(--gray); font-weight: 600; box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: all 0.2s; flex-shrink: 0; }
-        .tab-btn.active { background: var(--primary); color: var(--white); transform: scale(1.05); box-shadow: 0 4px 10px rgba(107, 78, 255, 0.4); }
-        .tab-date { font-size: 12px; display: block; opacity: 0.8; }
-        .tab-day { font-size: 16px; display: block; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        body { margin: 0; padding: 0; font-family: 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); padding-bottom: 95px; }
 
-        /* 行程卡片 */
+        /* === 1. Header (日期 + 關鍵字 + 天氣) === */
+        .header-section {
+            background: var(--primary);
+            padding: 20px 0 15px;
+            border-radius: 0 0 30px 30px;
+            position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 5px 20px rgba(122, 156, 165, 0.3);
+            color: white;
+        }
+        .header-top { display: flex; justify-content: space-between; padding: 0 20px 15px; align-items: center; }
+        .app-name { font-family: 'Playfair Display', serif; font-size: 22px; letter-spacing: 1px; }
+        
+        .daily-info { padding: 0 20px 10px; animation: fadeIn 0.5s; }
+        .daily-highlight { font-size: 18px; font-weight: bold; margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
+        .daily-weather { font-size: 13px; opacity: 0.9; display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 12px; width: fit-content; }
+
+        /* 日期滑動列 */
+        .date-scroller {
+            display: flex; overflow-x: auto; padding: 0 15px; gap: 10px;
+            -webkit-overflow-scrolling: touch; scrollbar-width: none;
+        }
+        .date-scroller::-webkit-scrollbar { display: none; }
+        .date-card {
+            background: rgba(255,255,255,0.25); min-width: 60px; height: 60px;
+            border-radius: 16px; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; color: white;
+            flex-shrink: 0; transition: all 0.2s; border: 1px solid rgba(255,255,255,0.1);
+        }
+        .date-card.active {
+            background: white; color: var(--primary); transform: scale(1.05); font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        /* === 2. 行程卡片 === */
         .container { padding: 20px; max-width: 600px; margin: 0 auto; }
-        .section { display: none; animation: fadeIn 0.3s; }
-        .section.active { display: block; }
-        
-        .card { background: var(--white); border-radius: 16px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; gap: 15px; align-items: center; position: relative; overflow: hidden; }
-        .card img { width: 80px; height: 80px; border-radius: 12px; object-fit: cover; background: #eee; }
-        .card-content { flex: 1; }
-        .time-badge { background: #EEEAFF; color: var(--primary); padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; display: inline-block; margin-bottom: 5px; }
-        .card h3 { margin: 0 0 5px 0; font-size: 16px; }
-        .card p { margin: 0; color: var(--gray); font-size: 13px; }
-        .nav-btn { background: #f0f0f0; border: none; width: 36px; height: 36px; border-radius: 50%; color: var(--primary); display: flex; align-items: center; justify-content: center; text-decoration: none; }
+        .view-section { display: none; animation: fadeIn 0.3s; }
+        .view-section.active { display: block; }
 
-        /* 預算記帳區 */
-        .budget-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .total-box { background: var(--white); padding: 20px; border-radius: 16px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); flex: 1; margin: 0 5px; }
-        .total-label { font-size: 12px; color: var(--gray); }
-        .total-amount { font-size: 24px; font-weight: 800; color: var(--primary); margin: 5px 0; }
-        .currency { font-size: 14px; color: #666; }
+        .timeline-item { display: flex; gap: 12px; margin-bottom: 20px; position: relative; }
+        .timeline-item::before { /* 連接線 */
+            content: ''; position: absolute; left: 24px; top: 40px; bottom: -30px;
+            width: 2px; background: #E0E6E8; z-index: 0;
+        }
+        .timeline-item:last-child::before { display: none; }
 
-        .add-btn { position: fixed; bottom: 90px; right: 20px; background: var(--primary); color: white; width: 56px; height: 56px; border-radius: 50%; border: none; box-shadow: 0 4px 15px rgba(107, 78, 255, 0.4); font-size: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 90; }
+        .time-badge {
+            background: white; color: var(--primary); font-weight: bold; font-size: 12px;
+            width: 50px; height: 50px; border-radius: 50%; display: flex;
+            align-items: center; justify-content: center; z-index: 1;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); flex-shrink: 0; border: 2px solid var(--bg);
+        }
 
-        /* 底部導航列 */
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--white); display: flex; justify-content: space-around; padding: 12px; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 100; }
-        .nav-item { border: none; background: none; color: var(--gray); font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; }
-        .nav-item.active { color: var(--primary); }
+        .trip-card {
+            flex: 1; background: white; border-radius: 18px; padding: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03); display: flex; gap: 12px;
+            position: relative; overflow: hidden;
+        }
+        .tag {
+            position: absolute; top: 0; right: 0; padding: 3px 10px;
+            font-size: 10px; color: white; border-radius: 0 18px 0 10px; font-weight: bold;
+        }
+        .trip-img {
+            width: 80px; height: 80px; border-radius: 12px; object-fit: cover; background: #eee;
+        }
+        .trip-content { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+        .trip-title { font-size: 16px; font-weight: bold; margin-bottom: 4px; color: #333; }
+        .trip-desc { font-size: 12px; color: #888; margin-bottom: 6px; }
+        .nav-btn-sm {
+            background: #F2F7F8; color: var(--primary); font-size: 11px; padding: 4px 8px;
+            border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; width: fit-content;
+        }
+
+        /* === 3. 記帳與結算 === */
+        .balance-card {
+            background: linear-gradient(135deg, #7A9CA5 0%, #5F7D85 100%);
+            border-radius: 20px; padding: 20px; color: white; margin-bottom: 20px;
+            box-shadow: 0 8px 20px rgba(122, 156, 165, 0.3); position: relative;
+        }
+        .balance-row { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .settle-box {
+            background: rgba(255,255,255,0.95); color: #333; padding: 15px; border-radius: 15px;
+            margin-top: 15px; font-size: 14px; display: flex; align-items: center; gap: 10px;
+        }
+        .settle-icon { width: 30px; height: 30px; background: var(--accent); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+
+        .expense-list { padding-bottom: 80px; }
+        .expense-item {
+            background: white; padding: 15px; border-radius: 14px; margin-bottom: 10px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .cat-icon {
+            width: 36px; height: 36px; background: #F4F6F4; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center; color: var(--primary); margin-right: 12px;
+        }
+
+        /* === 4. 底部導航 & FAB === */
+        .bottom-nav {
+            position: fixed; bottom: 20px; left: 20px; right: 20px;
+            background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
+            padding: 12px; border-radius: 25px; display: flex; justify-content: space-around;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1); z-index: 900;
+        }
+        .nav-item {
+            border: none; background: none; color: #B0B8BA;
+            display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 10px;
+        }
+        .nav-item.active { color: var(--primary); font-weight: bold; }
         .nav-item i { font-size: 20px; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .fab {
+            position: fixed; bottom: 100px; right: 25px;
+            background: var(--text); color: white; width: 55px; height: 55px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 24px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3); cursor: pointer; z-index: 800;
+        }
 
-        /* 簡單的輸入彈窗 */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 200; align-items: flex-end; }
-        .modal.open { display: flex; }
-        .modal-content { background: var(--white); width: 100%; padding: 20px; border-radius: 20px 20px 0 0; animation: slideUp 0.3s; }
-        .form-group { margin-bottom: 15px; }
-        .form-control { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 16px; }
-        .btn-submit { width: 100%; background: var(--primary); color: white; border: none; padding: 15px; border-radius: 12px; font-size: 16px; font-weight: bold; }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        /* === 5. 彈窗與表單 === */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000;
+            display: none; align-items: flex-end;
+        }
+        .modal-overlay.open { display: flex; animation: fadeIn 0.2s; }
+        .modal-sheet {
+            background: white; width: 100%; border-radius: 24px 24px 0 0;
+            padding: 30px 25px; animation: slideUp 0.3s;
+        }
+        .input-group { margin-bottom: 15px; }
+        .input-row { display: flex; gap: 10px; }
+        input, select {
+            width: 100%; padding: 15px; border: 1px solid #eee; border-radius: 12px;
+            font-size: 16px; background: #F9F9F9;
+        }
+        .currency-toggle {
+            display: flex; background: #eee; padding: 4px; border-radius: 10px; margin-bottom: 15px;
+        }
+        .c-btn { flex: 1; padding: 8px; text-align: center; border-radius: 8px; font-size: 14px; color: #888; }
+        .c-btn.active { background: white; color: var(--primary); font-weight: bold; shadow: 0 2px 5px rgba(0,0,0,0.05); }
+
+        .save-btn {
+            width: 100%; padding: 16px; background: var(--primary); color: white;
+            border: none; border-radius: 14px; font-size: 16px; font-weight: bold; margin-top: 10px;
+        }
+
+        /* 翻譯按鈕樣式 */
+        .trans-btn {
+            background: white; border-radius: 16px; padding: 20px; margin-bottom: 15px;
+            display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        }
+        
+        @keyframes fadeIn { from{opacity:0} to{opacity:1}}
+        @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)}}
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1>南義蜜月 🇮🇹</h1>
-        <p>3/28 - 4/05 • 浪漫之旅</p>
-    </div>
-
-    <div id="itinerary-view" class="section active">
-        <div class="date-tabs" id="dateTabs"></div>
+    <div class="header-section">
+        <div class="header-top">
+            <div class="app-name">Honeymoon 🇮🇹</div>
+            <div style="font-size:12px; opacity:0.8;">Day <span id="dayCount">1</span></div>
+        </div>
         
-        <div class="container" id="timelineContainer">
-            </div>
-    </div>
-
-    <div id="budget-view" class="section">
-        <div class="container">
-            <div class="budget-header">
-                <div class="total-box">
-                    <div class="total-label">總花費 (EUR)</div>
-                    <div class="total-amount" id="totalEur">0</div>
+        <div class="daily-info">
+            <div class="daily-highlight" id="dailyHighlight">
                 </div>
-                <div class="total-box">
-                    <div class="total-label">折合台幣 (TWD)</div>
-                    <div class="total-amount" id="totalTwd">0</div>
-                    <div class="currency">匯率: 35</div>
-                </div>
-            </div>
-
-            <div id="expenseList">
+            <div class="daily-weather" id="dailyWeather">
                 </div>
         </div>
-        <button class="add-btn" onclick="openModal()">+</button>
+
+        <div class="date-scroller" id="dateTabs"></div>
+    </div>
+
+    <div id="view-schedule" class="view-section active">
+        <div class="container" id="timelineList"></div>
+    </div>
+
+    <div id="view-wallet" class="view-section">
+        <div class="container">
+            <div class="balance-card">
+                <div class="balance-row">
+                    <div>
+                        <div style="font-size:12px; opacity:0.8;">總支出 (EUR)</div>
+                        <div style="font-size:28px; font-weight:bold;">€<span id="displayTotal">0</span></div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-size:12px; opacity:0.8;">台幣 (TWD)</div>
+                        <div style="font-size:20px;">$<span id="displayTotalTwd">0</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settle-box">
+                <div class="settle-icon"><i class="fas fa-hand-holding-dollar"></i></div>
+                <div id="settleResult">目前無帳目，快去記一筆！</div>
+            </div>
+
+            <h3 style="margin-top:25px; color:var(--text); font-size:16px;">消費明細</h3>
+            <div class="expense-list" id="expenseList"></div>
+        </div>
+        <button class="fab" onclick="openModal()"><i class="fas fa-plus"></i></button>
+    </div>
+
+    <div id="view-translate" class="view-section">
+        <div class="container">
+            <h3>即時翻譯</h3>
+            <div class="trans-btn" onclick="openGoogleTrans('zh-TW', 'it')">
+                <i class="fas fa-comment-dots" style="font-size:24px; color:var(--primary);"></i>
+                <div>
+                    <div style="font-weight:bold;">中 ➔ 義</div>
+                    <div style="font-size:12px; color:#888;">點餐、問路、購物時使用</div>
+                </div>
+            </div>
+            <div class="trans-btn" onclick="openGoogleTrans('it', 'zh-TW')">
+                <i class="fas fa-microphone-alt" style="font-size:24px; color:var(--accent);"></i>
+                <div>
+                    <div style="font-weight:bold;">義 ➔ 中</div>
+                    <div style="font-size:12px; color:#888;">開啟語音辨識聽對方說</div>
+                </div>
+            </div>
+
+            <h3>求生義大利語</h3>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <div class="trip-card" onclick="speak('Ciao')">
+                    <div style="text-align:center; width:100%;">
+                        <div style="font-weight:bold; color:var(--text);">Ciao</div>
+                        <div style="font-size:12px; color:#999;">你好/再見</div>
+                    </div>
+                </div>
+                <div class="trip-card" onclick="speak('Grazie')">
+                    <div style="text-align:center; width:100%;">
+                        <div style="font-weight:bold; color:var(--text);">Grazie</div>
+                        <div style="font-size:12px; color:#999;">謝謝</div>
+                    </div>
+                </div>
+                <div class="trip-card" onclick="speak('Bagno')">
+                    <div style="text-align:center; width:100%;">
+                        <div style="font-weight:bold; color:var(--text);">Bagno</div>
+                        <div style="font-size:12px; color:#999;">廁所</div>
+                    </div>
+                </div>
+                <div class="trip-card" onclick="speak('Caffè')">
+                    <div style="text-align:center; width:100%;">
+                        <div style="font-weight:bold; color:var(--text);">Un Caffè</div>
+                        <div style="font-size:12px; color:#999;">一杯咖啡</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="bottom-nav">
-        <button class="nav-item active" onclick="switchView('itinerary')">
-            <i class="fas fa-map-marked-alt"></i> 行程
-        </button>
-        <button class="nav-item" onclick="switchView('budget')">
+        <div class="nav-item active" onclick="switchView('schedule', this)">
+            <i class="fas fa-map-location-dot"></i> 行程
+        </div>
+        <div class="nav-item" onclick="switchView('wallet', this)">
             <i class="fas fa-wallet"></i> 記帳
-        </button>
+        </div>
+        <div class="nav-item" onclick="switchView('translate', this)">
+            <i class="fas fa-language"></i> 翻譯
+        </div>
     </div>
 
-    <div class="modal" id="expenseModal">
-        <div class="modal-content">
-            <h3>新增消費</h3>
-            <div class="form-group">
-                <input type="text" id="itemName" class="form-control" placeholder="項目 (例如: 冰淇淋)">
+    <div class="modal-overlay" id="addModal">
+        <div class="modal-sheet">
+            <h3>記一筆 ✏️</h3>
+            
+            <div class="currency-toggle">
+                <div class="c-btn active" id="btnEur" onclick="setCurrency('EUR')">歐元 (€)</div>
+                <div class="c-btn" id="btnTwd" onclick="setCurrency('TWD')">台幣 (NT$)</div>
             </div>
-            <div class="form-group">
-                <input type="number" id="itemPrice" class="form-control" placeholder="金額 (歐元)">
+
+            <div class="input-group">
+                <input type="text" id="exItem" placeholder="項目 (例如: 晚餐)">
             </div>
-            <div class="form-group">
-                <select id="payer" class="form-control">
-                    <option value="公金">公金</option>
-                    <option value="男方">男方</option>
-                    <option value="女方">女方</option>
+            
+            <div class="input-row">
+                <input type="number" id="exPrice" placeholder="金額">
+                <select id="exCat">
+                    <option value="food">🍽️ 餐飲</option>
+                    <option value="trans">🚆 交通</option>
+                    <option value="shop">🛍️ 購物</option>
+                    <option value="hotel">🏨 住宿</option>
+                    <option value="ticket">🎫 門票</option>
+                    <option value="other">✨ 其他</option>
                 </select>
             </div>
-            <button class="btn-submit" onclick="addExpense()">儲存</button>
-            <div style="text-align:center; margin-top:15px; color:#888;" onclick="closeModal()">取消</div>
+
+            <div class="input-group">
+                <select id="exPayer">
+                    <option value="" disabled selected>誰付錢？</option>
+                    <option value="male">🤵 男方先付</option>
+                    <option value="female">👰 女方先付</option>
+                </select>
+            </div>
+
+            <button class="save-btn" onclick="saveExpense()">儲存</button>
+            <div style="text-align:center; padding:15px; color:#999;" onclick="closeModal()">取消</div>
         </div>
     </div>
 
     <script>
-        // === 1. 資料庫：你的南義行程資料 (我幫你填好了) ===
-        const itineraryData = [
-            { date: "3/28", day: "五", time: "14:00", title: "抵達拿坡里", desc: "前往蘇連多", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Panorama_di_Napoli.jpg/640px-Panorama_di_Napoli.jpg", map: "https://www.google.com/maps/search/?api=1&query=Naples+Airport" },
-            { date: "3/28", day: "五", time: "16:00", title: "入住蘇連多海景飯店", desc: "阿瑪菲基地", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Sorrento_Piazza_Tasso_v2.jpg/640px-Sorrento_Piazza_Tasso_v2.jpg", map: "https://www.google.com/maps/search/?api=1&query=Sorrento" },
-            { date: "3/29", day: "六", time: "09:00", title: "前往卡布里島", desc: "搭船出發", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Capri_Harbour.jpg/640px-Capri_Harbour.jpg", map: "https://www.google.com/maps/search/?api=1&query=Capri+Port" },
-            { date: "3/29", day: "六", time: "11:00", title: "藍洞 Blue Grotto", desc: "上帝調好的藍", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Grotta_Azzurra_II.jpg/640px-Grotta_Azzurra_II.jpg", map: "https://www.google.com/maps/search/?api=1&query=Blue+Grotto" },
-            { date: "3/30", day: "日", time: "10:00", title: "波西塔諾", desc: "最美山城", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Positano_Italy.jpg/640px-Positano_Italy.jpg", map: "https://www.google.com/maps/search/?api=1&query=Positano" },
-            { date: "3/31", day: "一", time: "09:00", title: "前往馬泰拉", desc: "石頭城出發", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Matera_Sassi_2016.jpg/640px-Matera_Sassi_2016.jpg", map: "https://www.google.com/maps/search/?api=1&query=Matera" },
-            { date: "4/01", day: "二", time: "10:00", title: "洞穴飯店體驗", desc: "蜜月必住", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Matera_night.jpg/640px-Matera_night.jpg", map: "https://www.google.com/maps/search/?api=1&query=Matera+Hotel" },
-            { date: "4/02", day: "三", time: "14:00", title: "蘑菇村漫步", desc: "Trulli 童話屋", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Trulli_Alberobello.jpg/640px-Trulli_Alberobello.jpg", map: "https://www.google.com/maps/search/?api=1&query=Alberobello" },
-            { date: "4/03", day: "四", time: "18:00", title: "洞穴餐廳晚餐", desc: "Grotta Palazzese", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Grotta_Palazzese_Restaurant.jpg/640px-Grotta_Palazzese_Restaurant.jpg", map: "https://www.google.com/maps/search/?api=1&query=Grotta+Palazzese" },
-            { date: "4/04", day: "五", time: "10:00", title: "巴里市區觀光", desc: "貓耳朵麵街", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Bari_lungomare.jpg/640px-Bari_lungomare.jpg", map: "https://www.google.com/maps/search/?api=1&query=Bari" }
+        // === 資料庫：已幫你補齊照片、分類、咖啡、三餐 ===
+        const itinerary = [
+            // Day 1
+            { 
+                date: "3/28", day: "五", highlight: "拿坡里的混亂與美味", weather: "☁️ 16°C",
+                items: [
+                    { time: "14:00", title: "抵達拿坡里", desc: "NAP Airport 接機", type: "trans", img: "https://images.unsplash.com/photo-1595842875154-e6593466a987?w=400", map: "Naples International Airport" },
+                    { time: "15:30", title: "Caffè Gambrinus", desc: "百年咖啡廳必喝 (Cafe)", type: "coffee", img: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400", map: "Gran Caffè Gambrinus" },
+                    { time: "17:00", title: "前往蘇連多", desc: "飯店 Check-in", type: "trans", img: "https://images.unsplash.com/photo-1516483638261-f4dbaf036963?w=400", map: "Sorrento" },
+                    { time: "19:00", title: "Piazza Tasso 晚餐", desc: "檸檬酒 Limoncello", type: "food", img: "https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=400", map: "Piazza Tasso Sorrento" }
+                ]
+            },
+            // Day 2
+            { 
+                date: "3/29", day: "六", highlight: "卡布里島的藍色奇蹟", weather: "☀️ 18°C",
+                items: [
+                    { time: "09:00", title: "前往卡布里島", desc: "搭船出發", type: "trans", img: "https://images.unsplash.com/photo-1596395819057-d37f374e27da?w=400", map: "Port of Sorrento" },
+                    { time: "10:30", title: "Piazzetta 喝咖啡", desc: "島上客廳看名人", type: "coffee", img: "https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=400", map: "Piazzetta di Capri" },
+                    { time: "12:00", title: "藍洞 Blue Grotto", desc: "上帝調好的藍", type: "spot", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Grotta_Azzurra_II.jpg/600px-Grotta_Azzurra_II.jpg", map: "Blue Grotto" },
+                    { time: "13:30", title: "海鮮午餐", desc: "Ristorante Michel'angelo", type: "food", img: "https://images.unsplash.com/photo-1626202378370-9856e729a997?w=400", map: "Ristorante Michel'angelo Capri" },
+                    { time: "19:00", title: "Il Buco 晚餐", desc: "米其林推薦海鮮", type: "food", img: "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400", map: "Il Buco Sorrento" }
+                ]
+            },
+            // Day 3
+            {
+                date: "3/30", day: "日", highlight: "阿瑪菲海岸最美山城", weather: "☀️ 19°C",
+                items: [
+                    { time: "10:00", title: "波西塔諾 Positano", desc: "絕美垂直山城", type: "spot", img: "https://images.unsplash.com/photo-1620921932662-7901777d19c0?w=400", map: "Positano" },
+                    { time: "11:30", title: "海景咖啡", desc: "La Zagara 檸檬蛋糕", type: "coffee", img: "https://images.unsplash.com/photo-1595267591632-44e273f54546?w=400", map: "La Zagara Positano" },
+                    { time: "13:00", title: "阿瑪菲主教堂", desc: "必拍經典階梯", type: "spot", img: "https://images.unsplash.com/photo-1635269628042-438459424855?w=400", map: "Amalfi Cathedral" },
+                    { time: "14:00", title: "路邊小吃", desc: "炸海鮮 Cuoppo", type: "food", img: "https://images.unsplash.com/photo-1598218671607-e54e488b394e?w=400", map: "Amalfi Coast" },
+                    { time: "19:00", title: "飯店附近晚餐", desc: "放鬆休息", type: "food", img: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400", map: "Sorrento" }
+                ]
+            },
+            // Day 4
+            {
+                date: "3/31", day: "一", highlight: "穿越時空到馬泰拉", weather: "☁️ 15°C",
+                items: [
+                    { time: "09:00", title: "前往馬泰拉", desc: "車程約 3.5 小時", type: "trans", img: "https://images.unsplash.com/photo-1627918452778-98e3532f8661?w=400", map: "Matera" },
+                    { time: "13:00", title: "輕食午餐", desc: "Puccia 當地三明治", type: "food", img: "https://images.unsplash.com/photo-1619860601932-a5697aa62900?w=400", map: "Matera" },
+                    { time: "15:00", title: "Sassi 石窟民居", desc: "007 電影場景", type: "spot", img: "https://images.unsplash.com/photo-1563825832729-152cb5b7074c?w=400", map: "Sassi di Matera" },
+                    { time: "16:30", title: "洞穴咖啡", desc: "Caffè Vergnano", type: "coffee", img: "https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=400", map: "Matera Cafe" },
+                    { time: "19:00", title: "傳統肉料理", desc: "Osteria Pico", type: "food", img: "https://images.unsplash.com/photo-1544025162-d76690b6d012?w=400", map: "Osteria Pico Matera" }
+                ]
+            },
+            // Day 5
+            {
+                date: "4/01", day: "二", highlight: "體驗洞穴生活", weather: "☀️ 17°C",
+                items: [
+                    { time: "09:00", title: "洞穴飯店早餐", desc: "享受晨光", type: "food", img: "https://images.unsplash.com/photo-1533038590840-1cde6e668a91?w=400", map: "Matera" },
+                    { time: "11:00", title: "自由探索", desc: "迷失在巷弄中", type: "spot", img: "https://images.unsplash.com/photo-1555992828-ca4dbe41d294?w=400", map: "Matera" },
+                    { time: "13:00", title: "景觀午餐", desc: "Regia Corte", type: "food", img: "https://images.unsplash.com/photo-1596521566895-c1341c5d72f9?w=400", map: "Regia Corte Matera" },
+                    { time: "16:00", title: "飯店休息", desc: "享受設施", type: "hotel", img: "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=400", map: "Matera" },
+                    { time: "19:00", title: "簡單晚餐", desc: "披薩與酒", type: "food", img: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400", map: "Matera" }
+                ]
+            },
+            // Day 6
+            {
+                date: "4/02", day: "三", highlight: "走進童話蘑菇村", weather: "☀️ 18°C",
+                items: [
+                    { time: "10:00", title: "前往蘑菇村", desc: "Alberobello", type: "trans", img: "https://images.unsplash.com/photo-1529154036614-a60975f5c760?w=400", map: "Alberobello" },
+                    { time: "12:30", title: "義式午餐", desc: "L'Aratro", type: "food", img: "https://images.unsplash.com/photo-1498579150354-977475b7ea0b?w=400", map: "L'Aratro Alberobello" },
+                    { time: "14:00", title: "Trulli 土利屋", desc: "Rione Monti 漫步", type: "spot", img: "https://images.unsplash.com/photo-1647447477626-d66827038e23?w=400", map: "Rione Monti" },
+                    { time: "16:00", title: "特色咖啡", desc: "在土利屋喝 Espresso", type: "coffee", img: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400", map: "Alberobello Cafe" },
+                    { time: "19:00", title: "普利亞風味餐", desc: "貓耳朵麵 Orecchiette", type: "food", img: "https://images.unsplash.com/photo-1627207644206-a2040d60ecad?w=400", map: "Alberobello" }
+                ]
+            },
+            // Day 7
+            {
+                date: "4/03", day: "四", highlight: "懸崖上的浪漫晚餐", weather: "☀️ 19°C",
+                items: [
+                    { time: "11:00", title: "波利尼亞諾", desc: "Polignano a Mare", type: "trans", img: "https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=400", map: "Polignano a Mare" },
+                    { time: "12:30", title: "懸崖海灘", desc: "Lama Monachile", type: "spot", img: "https://images.unsplash.com/photo-1621689230554-07d4722a967f?w=400", map: "Lama Monachile" },
+                    { time: "15:00", title: "Mojito 咖啡", desc: "當地特調 Speciale", type: "coffee", img: "https://images.unsplash.com/photo-1574315042621-50e56598357f?w=400", map: "Polignano Cafe" },
+                    { time: "18:00", title: "洞穴餐廳", desc: "Grotta Palazzese (必訂)", type: "food", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Grotta_Palazzese_Restaurant.jpg/600px-Grotta_Palazzese_Restaurant.jpg", map: "Grotta Palazzese" }
+                ]
+            },
+            // Day 8
+            {
+                date: "4/04", day: "五", highlight: "巴里老城的麵香", weather: "☁️ 17°C",
+                items: [
+                    { time: "10:00", title: "巴里老城", desc: "Bari Vecchia", type: "spot", img: "https://images.unsplash.com/photo-1605206981987-a37eb5f0a0d4?w=400", map: "Bari Vecchia" },
+                    { time: "11:30", title: "阿嬤麵街", desc: "看阿嬤手作貓耳朵麵", type: "spot", img: "https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=400", map: "Strada delle Orecchiette" },
+                    { time: "13:00", title: "街頭小吃", desc: "Focaccia Barese", type: "food", img: "https://images.unsplash.com/photo-1601314167099-232737169c5a?w=400", map: "Panificio Fiore" },
+                    { time: "15:00", title: "最後咖啡", desc: "Caffè Vergnano", type: "coffee", img: "https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=400", map: "Bari Cafe" },
+                    { time: "19:00", title: "告別晚餐", desc: "海鮮大餐", type: "food", img: "https://images.unsplash.com/photo-1626804475297-411f7c1b4e5d?w=400", map: "Bari Restaurant" }
+                ]
+            },
+            // Day 9
+            {
+                date: "4/05", day: "六", highlight: "再見義大利", weather: "✈️",
+                items: [
+                    { time: "09:00", title: "飯店早餐", desc: "最後整理", type: "food", img: "https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=400", map: "" },
+                    { time: "11:00", title: "前往機場", desc: "Bari Airport (BRI)", type: "trans", img: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=400", map: "Bari Karol Wojtyła Airport" }
+                ]
+            }
         ];
 
-        // === 2. 程式邏輯區 ===
-        
+        // === 程式核心邏輯 ===
+        let currentDayIdx = 0;
+        let expenses = JSON.parse(localStorage.getItem('myExpensesV2')) || [];
+        let inputCurrency = 'EUR'; // 預設輸入幣別
+
         // 初始化
-        const dates = [...new Set(itineraryData.map(item => item.date))]; // 抓出所有日期
-        let currentDate = dates[0];
-        let expenses = JSON.parse(localStorage.getItem('myTripExpenses')) || []; // 從手機讀取舊帳目
-
-        function renderTabs() {
-            const container = document.getElementById('dateTabs');
-            container.innerHTML = dates.map(date => {
-                const dayData = itineraryData.find(d => d.date === date);
-                return `<button class="tab-btn ${date === currentDate ? 'active' : ''}" onclick="changeDate('${date}')">
-                    <span class="tab-date">${date}</span>
-                    <span class="tab-day">${dayData.day}</span>
-                </button>`;
-            }).join('');
-        }
-
-        function renderTimeline() {
-            const container = document.getElementById('timelineContainer');
-            const todayItems = itineraryData.filter(item => item.date === currentDate);
-            
-            container.innerHTML = todayItems.map(item => `
-                <div class="card" onclick="window.open('${item.map}', '_blank')">
-                    <img src="${item.img}" alt="${item.title}">
-                    <div class="card-content">
-                        <span class="time-badge">${item.time}</span>
-                        <h3>${item.title}</h3>
-                        <p>${item.desc}</p>
-                    </div>
-                    <a href="${item.map}" target="_blank" class="nav-btn">
-                        <i class="fas fa-location-arrow"></i>
-                    </a>
-                </div>
-            `).join('');
-        }
-
-        function changeDate(date) {
-            currentDate = date;
-            renderTabs();
+        function init() {
+            renderHeader();
             renderTimeline();
-        }
-
-        // 頁面切換
-        function switchView(viewName) {
-            document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            
-            if(viewName === 'itinerary') {
-                document.getElementById('itinerary-view').classList.add('active');
-                document.querySelectorAll('.nav-item')[0].classList.add('active');
-            } else {
-                document.getElementById('budget-view').classList.add('active');
-                document.querySelectorAll('.nav-item')[1].classList.add('active');
-                renderExpenses();
-            }
-        }
-
-        // 記帳功能
-        function renderExpenses() {
-            const list = document.getElementById('expenseList');
-            let total = 0;
-            
-            list.innerHTML = expenses.map((ex, index) => {
-                total += parseFloat(ex.price);
-                return `
-                <div class="card" style="padding:10px;">
-                    <div class="card-content">
-                        <h3>${ex.name}</h3>
-                        <p><span style="color:#6B4EFF">${ex.payer}</span> • ${ex.date}</p>
-                    </div>
-                    <div style="font-weight:bold; font-size:18px;">€${ex.price}</div>
-                    <button onclick="deleteExpense(${index})" style="background:none; border:none; color:#ccc; margin-left:10px;">x</button>
-                </div>`;
-            }).join('');
-
-            document.getElementById('totalEur').innerText = total.toLocaleString();
-            document.getElementById('totalTwd').innerText = (total * 35).toLocaleString(); // 匯率35
-        }
-
-        function addExpense() {
-            const name = document.getElementById('itemName').value;
-            const price = document.getElementById('itemPrice').value;
-            const payer = document.getElementById('payer').value;
-            
-            if(!name || !price) return alert("請輸入完整資料");
-
-            expenses.push({
-                name: name,
-                price: price,
-                payer: payer,
-                date: new Date().toLocaleDateString()
-            });
-
-            localStorage.setItem('myTripExpenses', JSON.stringify(expenses)); // 存到手機
-            
-            document.getElementById('itemName').value = '';
-            document.getElementById('itemPrice').value = '';
-            closeModal();
             renderExpenses();
         }
 
-        function deleteExpense(index) {
-            if(confirm('確定刪除這筆花費？')) {
-                expenses.splice(index, 1);
-                localStorage.setItem('myTripExpenses', JSON.stringify(expenses));
+        // 1. 渲染 Header (日期滑動)
+        function renderHeader() {
+            const container = document.getElementById('dateTabs');
+            container.innerHTML = itinerary.map((day, idx) => {
+                const activeClass = idx === currentDayIdx ? 'active' : '';
+                return `
+                <div class="date-card ${activeClass}" onclick="switchDay(${idx})">
+                    <div style="font-size:16px; font-weight:bold;">D${idx+1}</div>
+                    <div style="font-size:10px;">${day.date}</div>
+                </div>`;
+            }).join('');
+            
+            // 更新關鍵字與天氣
+            document.getElementById('dailyHighlight').innerHTML = itinerary[currentDayIdx].highlight;
+            document.getElementById('dailyWeather').innerHTML = itinerary[currentDayIdx].weather;
+            document.getElementById('dayCount').innerText = currentDayIdx + 1;
+        }
+
+        function switchDay(idx) {
+            currentDayIdx = idx;
+            renderHeader();
+            renderTimeline();
+        }
+
+        // 2. 渲染行程
+        function renderTimeline() {
+            const container = document.getElementById('timelineList');
+            const dayData = itinerary[currentDayIdx];
+            
+            // 定義標籤顏色與圖示
+            const types = {
+                'spot': { color: 'var(--tag-spot)', icon: 'camera', text: '景點' },
+                'food': { color: 'var(--tag-food)', icon: 'utensils', text: '美食' },
+                'coffee': { color: 'var(--tag-coffee)', icon: 'mug-hot', text: '咖啡' },
+                'trans': { color: 'var(--tag-trans)', icon: 'bus', text: '交通' },
+                'hotel': { color: '#B0B8BA', icon: 'bed', text: '住宿' }
+            };
+
+            container.innerHTML = dayData.items.map(item => {
+                const t = types[item.type] || types['spot'];
+                return `
+                <div class="timeline-item">
+                    <div class="time-badge">${item.time}</div>
+                    <div class="trip-card">
+                        <div class="tag" style="background:${t.color}">
+                            <i class="fas fa-${t.icon}"></i> ${t.text}
+                        </div>
+                        <img src="${item.img}" class="trip-img">
+                        <div class="trip-content">
+                            <div class="trip-title">${item.title}</div>
+                            <div class="trip-desc">${item.desc}</div>
+                            <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.map)}" target="_blank" class="nav-btn-sm">
+                                <i class="fas fa-location-arrow"></i> 導航
+                            </a>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        // 3. 記帳邏輯
+        function setCurrency(curr) {
+            inputCurrency = curr;
+            document.getElementById('btnEur').className = curr === 'EUR' ? 'c-btn active' : 'c-btn';
+            document.getElementById('btnTwd').className = curr === 'TWD' ? 'c-btn active' : 'c-btn';
+            
+            // 提示placeholder
+            document.getElementById('exPrice').placeholder = curr === 'EUR' ? '金額 (€)' : '金額 (NT$)';
+        }
+
+        function saveExpense() {
+            const item = document.getElementById('exItem').value;
+            let price = parseFloat(document.getElementById('exPrice').value);
+            const cat = document.getElementById('exCat').value;
+            const payer = document.getElementById('exPayer').value;
+
+            if(!item || !price || !payer) return alert("請輸入完整資料");
+
+            // 如果輸入台幣，換算成歐元儲存 (方便統一計算)
+            // 假設匯率 35
+            let priceEur = price;
+            if (inputCurrency === 'TWD') {
+                priceEur = price / 35;
+            }
+
+            expenses.push({ 
+                item, 
+                price: priceEur, // 統一存歐元
+                cat, 
+                payer, 
+                id: Date.now() 
+            });
+            
+            localStorage.setItem('myExpensesV2', JSON.stringify(expenses));
+            closeModal();
+            renderExpenses();
+            
+            // 清空
+            document.getElementById('exItem').value = '';
+            document.getElementById('exPrice').value = '';
+        }
+
+        function renderExpenses() {
+            const list = document.getElementById('expenseList');
+            let totalEur = 0;
+            
+            // 結算變數
+            let malePaid = 0;
+            let femalePaid = 0;
+            
+            const catIcons = {
+                'food': 'utensils', 'trans': 'bus', 'shop': 'bag-shopping',
+                'hotel': 'bed', 'ticket': 'ticket', 'other': 'star'
+            };
+
+            list.innerHTML = expenses.map(ex => {
+                totalEur += ex.price;
+                if(ex.payer === 'male') malePaid += ex.price;
+                if(ex.payer === 'female') femalePaid += ex.price;
+                
+                let payerText = ex.payer === 'male' ? '<span style="color:#7CA1B5">🤵 男方</span>' : '<span style="color:#D4A5A5">👰 女方</span>';
+                
+                return `
+                <div class="expense-item">
+                    <div style="display:flex; align-items:center;">
+                        <div class="cat-icon"><i class="fas fa-${catIcons[ex.cat]||'star'}"></i></div>
+                        <div>
+                            <div style="font-weight:bold; color:var(--text);">${ex.item}</div>
+                            <div style="font-size:12px; color:#999;">${payerText}</div>
+                        </div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-weight:bold;">€${ex.price.toFixed(1)}</div>
+                        <i class="fas fa-trash" style="color:#ddd; font-size:12px; margin-top:5px;" onclick="delExpense(${ex.id})"></i>
+                    </div>
+                </div>`;
+            }).join('');
+
+            // 更新總金額
+            document.getElementById('displayTotal').innerText = totalEur.toFixed(1);
+            document.getElementById('displayTotalTwd').innerText = Math.round(totalEur * 35).toLocaleString();
+
+            // === 自動結算邏輯 (Splitwise) ===
+            // 假設兩人平分總花費
+            let shouldBePaidPerPerson = totalEur / 2;
+            let maleDiff = malePaid - shouldBePaidPerPerson; // 男方多付了多少
+
+            let resultHtml = "";
+            if (Math.abs(maleDiff) < 1) {
+                resultHtml = "目前帳目兩清，完美！✌️";
+            } else if (maleDiff > 0) {
+                // 男方多付，女方要給男方
+                resultHtml = `👰 女方需給男方 <b style="color:var(--primary)">€${maleDiff.toFixed(1)}</b> (約 NT$${Math.round(maleDiff*35)})`;
+            } else {
+                // 男方少付，男方要給女方
+                let owe = Math.abs(maleDiff);
+                resultHtml = `🤵 男方需給女方 <b style="color:var(--accent)">€${owe.toFixed(1)}</b> (約 NT$${Math.round(owe*35)})`;
+            }
+            document.getElementById('settleResult').innerHTML = resultHtml;
+        }
+
+        function delExpense(id) {
+            if(confirm("確定刪除？")) {
+                expenses = expenses.filter(e => e.id !== id);
+                localStorage.setItem('myExpensesV2', JSON.stringify(expenses));
                 renderExpenses();
             }
         }
 
-        function openModal() { document.getElementById('expenseModal').classList.add('open'); }
-        function closeModal() { document.getElementById('expenseModal').classList.remove('open'); }
+        // 介面切換
+        function switchView(viewId, btn) {
+            document.querySelectorAll('.view-section').forEach(e => e.classList.remove('active'));
+            document.getElementById('view-'+viewId).classList.add('active');
+            
+            document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
+            btn.classList.add('active');
+        }
 
-        // 啟動 App
-        renderTabs();
-        renderTimeline();
+        function openModal() { document.getElementById('addModal').classList.add('open'); }
+        function closeModal() { document.getElementById('addModal').classList.remove('open'); }
+
+        // 翻譯
+        function openGoogleTrans(s, t) {
+            window.open(`https://translate.google.com/?sl=${s}&tl=${t}&op=translate`, '_blank');
+        }
+        function speak(txt) {
+            const u = new SpeechSynthesisUtterance(txt);
+            u.lang = 'it-IT';
+            speechSynthesis.speak(u);
+        }
+
+        // 啟動
+        init();
     </script>
 </body>
 </html>
